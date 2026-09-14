@@ -1,0 +1,228 @@
+---
+import * as Plot from "@observablehq/plot";
+import { parseHTML } from "linkedom";
+import { ageStructureAnnotations, selectedAgeStructureRecords, agingVitalRecords } from "../lib/aging-data";
+import { suicideAgeBands, suicideAgeRecords, vitalAgeBands, vitalRateRecords } from "../lib/suicide-data";
+import { firstChange, youthRecords } from "../lib/youth-data";
+import { assertFigureSeriesDeclaration, assertRenderedFigureCoverage, figureGroupMetas, figureMetas, seriesStyles } from "../lib/figures";
+import figureSources from "../../../data/figure_sources.json";
+import Base from "../layouts/Base.astro";
+import Figure from "../components/Figure.astro";
+import FigureDetails from "../components/FigureDetails.astro";
+import "../styles/ledger.css";
+
+type Point = { year: string; value: string; series: string; color: string; metric: string; attributes: Record<string, string> };
+type Annotation = { kind: string; year: string; text: string };
+type LegendEntry = Pick<Point, "series" | "color" | "metric" | "attributes">;
+type Figure = { id: string; title: string; yLabel: string; svg: string; points: Point[]; legends: LegendEntry[]; annotations: Annotation[]; caption: string };
+const WIDTH = 960, HEIGHT = 420, TOP = 40, BOTTOM = 360, LEFT = 88, RIGHT = 108;
+const AGE_COLORS: Record<string, string> = { "0-19歳": "#2a78d6", "20-29歳": "#eb6834", "30-39歳": "#1baf7a", "40-49歳": "#eda100", "50-59歳": "#e87ba4", "60歳以上": "#008300" };
+const STRUCTURE_COLORS: Record<string, string> = { "0-14歳": "#2a78d6", "15-64歳": "#eb6834", "65歳以上": "#008300" };
+const NEUTRAL = "#4b5563";
+const number = (value: string) => Number(value);
+
+function scaleDomain(points: Point[], includeZero = false): [number, number] {
+  const values = points.map((point) => number(point.value));
+  const low = includeZero ? Math.min(0, ...values) : Math.min(...values);
+  const high = includeZero ? Math.max(0, ...values) : Math.max(...values);
+  const padding = (high - low || 1) * 0.06;
+  return [low - (includeZero && low === 0 ? 0 : padding), high + padding];
+}
+function yAt(value: string, domain: [number, number]) { return BOTTOM + ((number(value) - domain[0]) / (domain[1] - domain[0])) * (TOP - BOTTOM); }
+function addAnnotationRule(document: Document, parent: Element, annotation: Annotation, xDomain: [number, number]) {
+  const x = LEFT + ((number(annotation.year) - xDomain[0]) / (xDomain[1] - xDomain[0])) * (WIDTH - RIGHT - LEFT);
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute("x1", String(x)); line.setAttribute("x2", String(x));
+  line.setAttribute("y1", String(TOP)); line.setAttribute("y2", String(BOTTOM));
+  line.setAttribute("stroke", "#6b7280"); line.setAttribute("stroke-dasharray", "3,3");
+  line.setAttribute("data-annotation-kind", annotation.kind); line.setAttribute("data-annotation-year", annotation.year);
+  parent.appendChild(line);
+}
+function connectAxis(document: Document, svg: Element, axis: "x" | "y", label: string) {
+  const tickLabels = svg.querySelector(`g[aria-label="${axis}-axis tick label"]`);
+  const axisLabel = svg.querySelector(`g[aria-label="${axis}-axis label"]`);
+  if (!tickLabels || !axisLabel) throw new Error(`Plot の${axis}軸ラベル群を取得できません`);
+
+  const container = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  container.setAttribute("data-axis", axis);
+  tickLabels.querySelectorAll("text").forEach((node) => node.setAttribute("data-tick-value", node.textContent ?? ""));
+  const labelText = axisLabel.querySelector("text");
+  if (!labelText) throw new Error(`Plot の${axis}軸ラベル文字を取得できません`);
+  labelText.setAttribute("data-axis-label", label);
+  if (axis === "x") {
+    // Keep the label's resolved anchor and right edge explicit for static SVG checks.
+    labelText.setAttribute("text-anchor", "end");
+    labelText.setAttribute("transform", `translate(${WIDTH - RIGHT - 1},${BOTTOM})`);
+  }
+  svg.appendChild(container);
+  container.appendChild(tickLabels);
+  container.appendChild(axisLabel);
+}
+function addGridlineMarkers(svg: Element) {
+  const grid = svg.querySelector('g[aria-label="y-grid"]');
+  if (!grid) throw new Error("Plot の y 軸横罫線群を取得できません");
+  grid.setAttribute("data-grid", "y");
+  grid.setAttribute("aria-hidden", "true");
+  grid.querySelectorAll("line, path").forEach((line) => line.setAttribute("data-gridline", "y"));
+  svg.insertBefore(grid, svg.firstChild);
+}
+function addSeriesStyleAttributes(svg: Element, points: Point[]) {
+  const stylesByColor: Map<string, (typeof seriesStyles)[keyof typeof seriesStyles]> = new Map(
+    points.flatMap((point) => {
+      const style = seriesStyles[point.series as keyof typeof seriesStyles];
+      return style ? [[style.sourceColor, style] as const] : [];
+    }),
+  );
+  const sourceColorFor = (element: Element, attribute: "stroke" | "fill") =>
+    element.getAttribute(attribute) ?? element.parentElement?.getAttribute(attribute);
+  svg.querySelectorAll('[aria-label="line"] path').forEach((path) => {
+    const style = stylesByColor.get(sourceColorFor(path, "stroke") ?? "");
+    if (!style) return;
+    path.setAttribute("data-series-color", style.sourceColor);
+    path.setAttribute("data-line-style", style.lineStyle);
+  });
+  svg.querySelectorAll('[aria-label="dot"] circle').forEach((circle) => {
+    const style = stylesByColor.get(sourceColorFor(circle, "fill") ?? "");
+    if (!style) return;
+    circle.setAttribute("data-series-color", style.sourceColor);
+    circle.setAttribute("data-line-style", style.lineStyle);
+  });
+}
+function yearTickValues(domain: [number, number], observedYears: number[]) {
+  const first = Math.min(...domain), last = Math.max(...domain);
+  const minimumYearGap = Math.ceil((30 * (last - first)) / (WIDTH - LEFT - RIGHT));
+  const intervals = Math.min(25, Math.floor((last - first) / minimumYearGap));
+  const required = [first, last, Math.min(...observedYears), Math.max(...observedYears)];
+  const ticks = [...new Set(required)].sort((a, b) => a - b);
+  const candidates = Array.from({ length: intervals + 1 }, (_, index) => Math.round(first + ((last - first) * index) / intervals));
+  candidates.forEach((candidate) => {
+    if (ticks.every((tick) => Math.abs(candidate - tick) >= minimumYearGap)) ticks.push(candidate);
+  });
+  return ticks.sort((a, b) => a - b);
+}
+function figureSvg(id: string, title: string, yLabel: string, points: Point[], xDomain: [number, number], options: { includeZero?: boolean; annotations?: Annotation[] } = {}): Figure {
+  assertFigureSeriesDeclaration(id, points.map((point) => point.series));
+  const { document } = parseHTML("<html><body></body></html>");
+  globalThis.document = document;
+  const domain = scaleDomain(points, options.includeZero);
+  const yearTicks = yearTickValues(xDomain, points.map((point) => number(point.year)));
+  const svg = Plot.plot({ document, width: WIDTH, height: HEIGHT, marginTop: TOP, marginRight: RIGHT, marginBottom: HEIGHT - BOTTOM, marginLeft: LEFT,
+    x: { type: "linear", domain: xDomain, label: "年", labelArrow: false, ticks: yearTicks, tickFormat: (year) => String(year) }, y: { type: "linear", domain, nice: false, label: yLabel, labelArrow: false, grid: true },
+    marks: [
+      Plot.line(points.filter((point) => point.series !== "合計"), { x: "year", y: "value", z: "series", stroke: "color" }),
+      Plot.line(points.filter((point) => point.series === "合計"), { x: "year", y: "value", stroke: NEUTRAL, strokeDasharray: "5,3" }),
+      Plot.dot(points, { x: "year", y: "value", fill: "color", r: 3.4 }),
+    ],
+  });
+  svg.querySelector("style")?.remove();
+  addGridlineMarkers(svg);
+  addSeriesStyleAttributes(svg, points);
+  svg.setAttribute("role", "img"); svg.setAttribute("aria-label", title); svg.setAttribute("data-figure-id", id);
+  svg.setAttribute("data-y-scale-domain-min", String(domain[0])); svg.setAttribute("data-y-scale-domain-max", String(domain[1]));
+  svg.setAttribute("data-y-scale-pixel-top", String(TOP)); svg.setAttribute("data-y-scale-pixel-bottom", String(BOTTOM));
+  svg.setAttribute("data-x-scale-pixel-left", String(LEFT)); svg.setAttribute("data-x-scale-pixel-right", String(WIDTH - RIGHT));
+  svg.setAttribute("data-x-scale-domain-min", String(xDomain[0])); svg.setAttribute("data-x-scale-domain-max", String(xDomain[1]));
+  connectAxis(document, svg, "x", "年");
+  connectAxis(document, svg, "y", yLabel);
+  const circles = [...svg.querySelectorAll("circle")];
+  if (circles.length !== points.length) throw new Error(`${id}: Plot の観測点数が一致しません (${circles.length}/${points.length})`);
+  circles.forEach((circle, index) => {
+    const point = points[index];
+    circle.setAttribute("cy", yAt(point.value, domain).toFixed(6));
+    circle.setAttribute("data-csv-metric", point.metric);
+    circle.setAttribute("data-csv-series-label", point.series);
+    circle.setAttribute("data-csv-value", point.value);
+    Object.entries(point.attributes).forEach(([name, value]) => circle.setAttribute(name, value));
+  });
+  const annotations = options.annotations ?? [];
+  annotations.forEach((annotation) => addAnnotationRule(document, svg, annotation, xDomain));
+  const legends = [...points.reduce((entries, point) => {
+    if (!entries.has(point.series)) entries.set(point.series, point);
+    return entries;
+  }, new Map<string, Point>()).values()];
+  return { id, title, yLabel, svg: svg.outerHTML, points, legends, annotations, caption: `${title}。` };
+}
+
+function agePoint(row: typeof selectedAgeStructureRecords[number], metric: "population_persons" | "population_share_percent"): Point { return { year: row.year, value: row[metric], series: row.age_band, color: STRUCTURE_COLORS[row.age_band], metric, attributes: { "data-csv-series-id": row.series_id, "data-csv-year": row.year, "data-csv-age-band": row.age_band, "data-csv-population-persons": row.population_persons, "data-csv-population-share-percent": row.population_share_percent, "data-csv-observation-basis": row.observation_basis, "data-csv-observation-schedule": row.observation_schedule, "data-csv-population-definition": row.population_definition } }; }
+const totalAgeRows = selectedAgeStructureRecords.filter((row) => row.population_definition === "総人口");
+const annotationLabels: Record<string, string> = {
+  observation_basis_change: "観測基準",
+  observation_schedule_change: "観測時期",
+  count_source_change: "自殺者数の集計区分",
+  population_basis_change: "人口の基準",
+};
+const changeAnnotationText = (kind: string, year: string, previous: string, current: string) =>
+  `${year}年 ${annotationLabels[kind]}: ${previous} から ${current} へ`;
+const ageAnnotations = ageStructureAnnotations.map((item) => ({
+  kind: item.kind,
+  year: item.year,
+  text: changeAnnotationText(item.kind, item.year, item.previous, item.current),
+}));
+const agePersonsSvg = figureSvg("age-structure-persons", "年齢 3 区分の人口", "人口（人）", totalAgeRows.map((row) => agePoint(row, "population_persons")), [1920, 2025], { includeZero: true, annotations: ageAnnotations });
+const ageShareSvg = figureSvg("age-structure-share", "年齢 3 区分の構成比", "構成比（%）", totalAgeRows.map((row) => agePoint(row, "population_share_percent")), [1920, 2025], { annotations: ageAnnotations });
+const vitalAttributes = (row: typeof agingVitalRecords[number]) => ({ "data-csv-series-id": row.series_id, "data-csv-year": row.year, "data-csv-population-definition": row.population_definition });
+const vitalPoints = ([ ["出生", "birth_count", "births_persons", "data-csv-birth-count", "#2a78d6"], ["死亡", "death_count", "deaths_persons", "data-csv-death-count", "#eb6834"], ["自然増減", "natural_change", "natural_change_persons", "data-csv-natural-change", NEUTRAL] ] as const).flatMap(([series, metric, column, attribute, color]) => agingVitalRecords.map((row) => ({ year: row.year, value: row[column], series, color, metric, attributes: { ...vitalAttributes(row), [attribute]: row[column] } })));
+const vitalSvg = figureSvg("vital-counts", "出生数と死亡数と自然増減", "人数（人）", vitalPoints, [1899, 2024], { includeZero: true });
+const fertilityStart = agingVitalRecords.find((row) => row.total_fertility_rate !== "")!;
+const fertilitySvg = figureSvg("total-fertility-rate", "合計特殊出生率", "合計特殊出生率", agingVitalRecords.filter((row) => row.total_fertility_rate !== "").map((row) => ({ year: row.year, value: row.total_fertility_rate, series: "合計特殊出生率", color: NEUTRAL, metric: "total_fertility_rate", attributes: { ...vitalAttributes(row), "data-csv-total-fertility-rate": row.total_fertility_rate } })), [1899, 2024], { annotations: [{ kind: "source_data_start", year: fertilityStart.year, text: `元データは ${fertilityStart.year} 年から` }] });
+
+const suicideRows = suicideAgeRecords.filter((row) => suicideAgeBands.includes(row.age_band as typeof suicideAgeBands[number]));
+function suicidePoint(row: typeof suicideRows[number], metric: "suicide_count" | "rate_per_100k"): Point { const color = row.age_band === "合計" ? NEUTRAL : AGE_COLORS[row.age_band]; return { year: row.year, value: row[metric], series: row.age_band, color, metric, attributes: { "data-csv-series-id": row.series_id, "data-csv-year": row.year, "data-csv-age-band": row.age_band, "data-csv-suicide-count": row.suicide_count, "data-csv-population-persons": row.population_persons, "data-csv-rate-per-100k": row.rate_per_100k, "data-csv-population-basis": row.population_basis, "data-csv-population-source-age-classes": row.population_source_age_classes, "data-csv-denominator-scope": row.denominator_scope } }; }
+const suicideCountSvg = figureSvg("suicide-count-by-age", "年齢帯別の自殺者数", "自殺者数（人）", suicideRows.map((row) => suicidePoint(row, "suicide_count")), [1995, 2025], { includeZero: true });
+const suicideRateSvg = figureSvg("suicide-rate-by-age", "年齢帯別の自殺死亡率", "自殺死亡率（人口 10 万対）", suicideRows.map((row) => suicidePoint(row, "rate_per_100k")), [1995, 2025]);
+
+function youthPoint(row: typeof youthRecords[number], metric: "suicide_count" | "population_persons" | "rate_per_100k"): Point { return { year: row.year, value: row[metric], series: "0-19歳", color: AGE_COLORS["0-19歳"], metric, attributes: { "data-csv-series-id": row.series_id, "data-csv-year": row.year, "data-csv-age-band": row.age_band, "data-csv-suicide-count": row.suicide_count, "data-csv-population-persons": row.population_persons, "data-csv-rate-per-100k": row.rate_per_100k, "data-csv-suicide-count-source": row.suicide_count_source, "data-csv-population-basis": row.population_basis } }; }
+function youthAnnotation(kind: string, column: keyof typeof youthRecords[number]) {
+  const changed = firstChange(column);
+  const previous = youthRecords[youthRecords.indexOf(changed) - 1][column];
+  return {
+    kind,
+    year: changed.year,
+    text: changeAnnotationText(kind, changed.year, previous, changed[column]),
+  };
+}
+const youthCountSvg = figureSvg("youth-suicide-count", "0-19 歳の自殺者数", "自殺者数（人）", youthRecords.map((row) => youthPoint(row, "suicide_count")), [1995, 2025], { includeZero: true, annotations: [youthAnnotation("count_source_change", "suicide_count_source")] });
+const youthPopulationSvg = figureSvg("youth-population", "0-19 歳の人口", "人口（人）", youthRecords.map((row) => youthPoint(row, "population_persons")), [1995, 2025], { includeZero: true, annotations: [youthAnnotation("population_basis_change", "population_basis")] });
+const youthRateSvg = figureSvg("youth-suicide-rate", "0-19 歳の自殺死亡率", "自殺死亡率（人口 10 万対）", youthRecords.map((row) => youthPoint(row, "rate_per_100k")), [1995, 2025], { annotations: [youthAnnotation("count_source_change", "suicide_count_source"), youthAnnotation("population_basis_change", "population_basis")] });
+function vitalSexRatePoint(row: typeof vitalRateRecords[number]): Point { return { year: row.year, value: row.rate_per_100k, series: row.sex, color: row.sex === "男" ? "#2a78d6" : "#e87ba4", metric: "rate_per_100k", attributes: { "data-csv-series-id": row.series_id, "data-csv-year": row.year, "data-csv-sex": row.sex, "data-csv-age-band": row.age_band, "data-csv-suicide-count": row.suicide_count, "data-csv-population-persons": row.population_persons, "data-csv-rate-per-100k": row.rate_per_100k, "data-csv-population-basis": row.population_basis, "data-csv-suicide-count-source-age-classes": row.suicide_count_source_age_classes, "data-csv-population-source-age-classes": row.population_source_age_classes, "data-csv-denominator-scope": row.denominator_scope, "data-csv-population-definition": row.population_definition } }; }
+const vitalSexFigures = vitalAgeBands.map((ageBand) => {
+  const id = `vital-suicide-rate-${ageBand === "60歳以上" ? "60-plus" : ageBand.replace("歳", "")}`;
+  const title = `${ageBand}の男女別自殺死亡率`;
+  return figureSvg(id, title, "自殺死亡率（人口 10 万対）", vitalRateRecords.filter((row) => row.age_band === ageBand && (row.sex === "男" || row.sex === "女")).map(vitalSexRatePoint), [1995, 2024]);
+});
+const figures = [agePersonsSvg, ageShareSvg, vitalSvg, fertilitySvg, suicideCountSvg, suicideRateSvg, youthCountSvg, youthPopulationSvg, youthRateSvg, ...vitalSexFigures];
+assertRenderedFigureCoverage(figures.map((figure) => figure.id));
+const figuresById = new Map(figures.map((figure) => [figure.id, figure]));
+const sexGroup = figureGroupMetas.find((group) => group.id === "vital-suicide-rate-by-sex")!;
+const sexFigures = figureMetas
+  .filter((meta) => meta.groupId === sexGroup.id)
+  .map((meta) => ({ figure: figuresById.get(meta.id)!, meta }));
+const individualFigures = figureMetas
+  .filter((meta) => meta.groupId === meta.id)
+  .map((meta) => ({ figure: figuresById.get(meta.id)!, meta }));
+const sourceFor = (id: string) => figureSources[id as keyof typeof figureSources];
+---
+
+<Base title="人口減少と若年層の自殺に関する基礎データ">
+  <article class="ledger-list">
+    {individualFigures.map(({ figure, meta }, index) => (
+      <section class="mock-figure" data-number={String(index + 1).padStart(2, "0")}>
+        <div class="figure-stack">
+          <Figure figure={figure} meta={meta} />
+          <FigureDetails
+            details={meta}
+            source={sourceFor(meta.id)}
+            annotations={figure.annotations.map((annotation) => ({ figureId: figure.id, annotation }))}
+          />
+        </div>
+      </section>
+    ))}
+    <section class="mock-figure" data-number="10">
+      <div class="figure-stack">
+        <h2>{sexGroup.title}</h2>
+        {sexFigures.map(({ figure, meta }) => <Figure figure={figure} meta={meta} showHeading={false} />)}
+        <FigureDetails details={sexGroup} source={sourceFor(sexFigures[0].meta.id)} />
+      </div>
+    </section>
+  </article>
+</Base>

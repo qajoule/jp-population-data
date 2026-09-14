@@ -1,0 +1,44 @@
+---
+type Details = {
+  observation: string;
+  notes: string[];
+  transformation: string;
+};
+type Source = {
+  attribution: string;
+  primary_inputs: Array<{ source_organization: string; table_title: string; source_url: string }>;
+};
+type Annotation = { kind: string; year: string; text: string };
+type Props = {
+  details: Details;
+  source: Source;
+  annotations?: Array<{ figureId: string; annotation: Annotation }>;
+};
+
+const { details, source, annotations = [] } = Astro.props;
+---
+
+<dl class="chart-notes">
+  <div>
+    <dt>注記</dt>
+    <dd>
+      <ul>
+        {details.notes.map((note: string) => <li>{note}</li>)}
+        {annotations.map(({ figureId, annotation }) => (
+          <li data-figure-ref={figureId} data-annotation-kind={annotation.kind} data-annotation-year={annotation.year}>{annotation.text}</li>
+        ))}
+      </ul>
+    </dd>
+  </div>
+</dl>
+<div class="chart-footer">
+  <p>{details.observation}</p>
+  <details class="chart-sources">
+    <summary>出典（{source.primary_inputs.length}件）</summary>
+    <p class="chart-transformation">{details.transformation}</p>
+    <p class="chart-attribution">{source.attribution}</p>
+    <ul>
+      {source.primary_inputs.map((input: Source["primary_inputs"][number]) => <li><a href={input.source_url} rel="noopener">{input.source_organization}: {input.table_title}</a></li>)}
+    </ul>
+  </details>
+</div>

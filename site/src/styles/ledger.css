@@ -1,0 +1,47 @@
+.intro { margin-block: 1rem 2rem; }
+.intro p { margin-block: .75rem; }
+.site-footer { font-size: .9rem; padding: 1rem 0 2rem; }
+.footer-license-band { background: var(--footer-band); margin-top: 1.5rem; padding: .75rem 1rem; }
+.footer-links { color: var(--ink-secondary); display: grid; gap: .5rem; }
+.footer-links__row { align-items: center; display: flex; flex-wrap: wrap; gap: .25rem 1rem; justify-content: center; }
+.footer-links a { align-items: center; display: inline-flex; min-height: 44px; }
+.helpline { color: var(--ink); margin-top: 1.5rem; text-align: center; }
+.helpline h2 { color: var(--ink); font-size: 1rem; font-weight: 650; margin: 0; text-align: center; }
+.helpline p, .helpline ul { margin-block: .5rem; }
+.helpline ul { list-style: none; padding: 0; }
+.helpline a { align-items: center; display: inline-flex; min-height: 44px; }
+.break-keep { word-break: keep-all; }
+.ledger-list { border-top: 1px solid var(--rule-structural); padding-bottom: 54px; }
+.mock-figure { border-bottom: 1px solid var(--rule-structural); display: grid; grid-template-columns: var(--index-column) minmax(0, 1fr); margin-inline-start: calc(-1 * var(--index-column)); padding-block: 26px; width: calc(100% + var(--index-column)); }
+.mock-figure::before { color: var(--muted); content: attr(data-number); font-size: .78rem; letter-spacing: .08em; padding-top: .25rem; }
+.mock-figure > * { grid-column: 2; min-width: 0; }
+.mock-figure h2 { border-bottom: 1px solid var(--rule-structural); padding-bottom: 10px; }
+.chart-footer { display: grid; gap: .3rem 1.5rem; grid-template-columns: minmax(0, 1fr) auto; }
+.chart-footer p { margin: 0; }
+.chart-sources { grid-column: 1 / -1; }
+.chart-sources summary { align-items: center; cursor: pointer; display: flex; min-height: 44px; }
+.chart-sources p { margin: .35rem 0; }
+.chart-sources ul { margin: 0; padding-left: 1.25rem; }
+.chart-values summary { align-items: center; cursor: pointer; display: flex; min-height: 44px; }
+.chart-values__scroll { max-width: 100%; overflow-x: auto; }
+.chart-values table { border-collapse: collapse; margin-bottom: .5rem; min-width: max-content; }
+.chart-values caption { caption-side: top; font-weight: 650; padding: .5rem 0; text-align: left; }
+.chart-values th, .chart-values td { border: 1px solid var(--rule); padding: .4rem .65rem; text-align: right; white-space: nowrap; }
+.chart-values thead th { background: var(--surface); }
+.chart-values th:first-child { text-align: left; }
+.figure-readout { background: var(--surface); border: 1px solid var(--rule-structural); box-shadow: 0 4px 14px rgb(0 0 0 / .18); color: var(--ink); max-width: min(22rem, calc(100vw - 2rem)); padding: .65rem .8rem; pointer-events: none; position: fixed; z-index: 10; }
+.figure-readout__year { font-weight: 650; margin: 0 0 .35rem; }
+.figure-readout ul { list-style: none; margin: 0; padding: 0; }
+.figure-readout li { display: flex; gap: 1rem; justify-content: space-between; }
+.figure-stack { display: grid; gap: 1.5rem; min-width: 0; }
+.figure-stack figure { min-width: 0; }
+.figure-stack figcaption { color: var(--ink-secondary); font-size: .9rem; margin-top: .4rem; }
+@media (max-width: 683px) {
+  /* This breakpoint owns the ledger-to-stacked transition; it does not rely
+     on base.css loading before this stylesheet. */
+  .mock-figure { display: block; margin-inline-start: 0; width: auto; }
+  .mock-figure::before { display: block; margin-bottom: .35rem; }
+  .chart-footer { display: block; }
+  .footer-links__row { align-items: center; flex-direction: column; }
+  .footer-links__row > * { max-width: 100%; text-align: center; }
+}

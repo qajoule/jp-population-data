@@ -1,0 +1,734 @@
+{
+  "age-structure-persons": {
+    "derived_csv": [
+      "data/derived/aging_age_structure.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/pop_age3_longterm.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（3区分）別人口及び年齢別割合 － 全国，都道府県（大正9年～令和2年）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003410383"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「年齢（3区分）別人口及び年齢別割合 － 全国，都道府県（大正9年～令和2年）」（総務省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）、「概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-」（総務省）を加工して作成"
+  },
+  "age-structure-share": {
+    "derived_csv": [
+      "data/derived/aging_age_structure.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/pop_age3_longterm.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（3区分）別人口及び年齢別割合 － 全国，都道府県（大正9年～令和2年）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003410383"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「年齢（3区分）別人口及び年齢別割合 － 全国，都道府県（大正9年～令和2年）」（総務省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）、「概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-」（総務省）を加工して作成"
+  },
+  "vital-counts": {
+    "derived_csv": [
+      "data/derived/aging_vital_change.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_births_rates.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 年次別にみた出生数・出生率（人口千対）・出生性比及び合計特殊出生率",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411595"
+      },
+      {
+        "local_path": "data/estat/vital_deaths_rates.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 年次別にみた性別死亡数及び死亡率（人口千対）並びに死亡性比",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411649"
+      }
+    ],
+    "attribution": "「上巻 年次別にみた出生数・出生率（人口千対）・出生性比及び合計特殊出生率」（厚生労働省）、「上巻 年次別にみた性別死亡数及び死亡率（人口千対）並びに死亡性比」（厚生労働省）を加工して作成"
+  },
+  "total-fertility-rate": {
+    "derived_csv": [
+      "data/derived/aging_vital_change.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_births_rates.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 年次別にみた出生数・出生率（人口千対）・出生性比及び合計特殊出生率",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411595"
+      },
+      {
+        "local_path": "data/estat/vital_deaths_rates.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 年次別にみた性別死亡数及び死亡率（人口千対）並びに死亡性比",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411649"
+      }
+    ],
+    "attribution": "「上巻 年次別にみた出生数・出生率（人口千対）・出生性比及び合計特殊出生率」（厚生労働省）、「上巻 年次別にみた性別死亡数及び死亡率（人口千対）並びに死亡性比」（厚生労働省）を加工して作成"
+  },
+  "suicide-count-by-age": {
+    "derived_csv": [
+      "data/derived/suicide_by_age_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/npa/npa_suicide_age_annual.csv",
+        "source_organization": "警察庁",
+        "table_title": "令和7年中における自殺の状況 資料",
+        "source_url": "https://www.npa.go.jp/safetylife/seianki/jisatsu/R08/R7jisatsunojoukyou.pdf"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「令和7年中における自殺の状況 資料」（警察庁）を加工して作成"
+  },
+  "suicide-rate-by-age": {
+    "derived_csv": [
+      "data/derived/suicide_by_age_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/npa/npa_suicide_age_annual.csv",
+        "source_organization": "警察庁",
+        "table_title": "令和7年中における自殺の状況 資料",
+        "source_url": "https://www.npa.go.jp/safetylife/seianki/jisatsu/R08/R7jisatsunojoukyou.pdf"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「令和7年中における自殺の状況 資料」（警察庁）を加工して作成"
+  },
+  "youth-suicide-count": {
+    "derived_csv": [
+      "data/derived/youth_suicide_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/npa/npa_suicide_age_annual.csv",
+        "source_organization": "警察庁",
+        "table_title": "令和7年中における自殺の状況 資料",
+        "source_url": "https://www.npa.go.jp/safetylife/seianki/jisatsu/R08/R7jisatsunojoukyou.pdf"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「令和7年中における自殺の状況 資料」（警察庁）を加工して作成"
+  },
+  "youth-population": {
+    "derived_csv": [
+      "data/derived/youth_suicide_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/npa/npa_suicide_age_annual.csv",
+        "source_organization": "警察庁",
+        "table_title": "令和7年中における自殺の状況 資料",
+        "source_url": "https://www.npa.go.jp/safetylife/seianki/jisatsu/R08/R7jisatsunojoukyou.pdf"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「令和7年中における自殺の状況 資料」（警察庁）を加工して作成"
+  },
+  "youth-suicide-rate": {
+    "derived_csv": [
+      "data/derived/youth_suicide_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/npa/npa_suicide_age_annual.csv",
+        "source_organization": "警察庁",
+        "table_title": "令和7年中における自殺の状況 資料",
+        "source_url": "https://www.npa.go.jp/safetylife/seianki/jisatsu/R08/R7jisatsunojoukyou.pdf"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      },
+      {
+        "local_path": "data/estat/pop_total_5y_2025.csv",
+        "source_organization": "総務省",
+        "table_title": "概算値 年齢（５歳階級），男女，月別人口－総人口（各月１日現在）-令和２年国勢調査基準-",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003443838"
+      }
+    ],
+    "attribution": "「令和7年中における自殺の状況 資料」（警察庁）を加工して作成"
+  },
+  "vital-suicide-rate-0-19": {
+    "derived_csv": [
+      "data/derived/vital_suicide_by_age_sex_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_suicide_age_sex.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411659"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      }
+    ],
+    "attribution": "「上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）」（厚生労働省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）を加工して作成"
+  },
+  "vital-suicide-rate-20-29": {
+    "derived_csv": [
+      "data/derived/vital_suicide_by_age_sex_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_suicide_age_sex.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411659"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      }
+    ],
+    "attribution": "「上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）」（厚生労働省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）を加工して作成"
+  },
+  "vital-suicide-rate-30-39": {
+    "derived_csv": [
+      "data/derived/vital_suicide_by_age_sex_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_suicide_age_sex.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411659"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      }
+    ],
+    "attribution": "「上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）」（厚生労働省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）を加工して作成"
+  },
+  "vital-suicide-rate-40-49": {
+    "derived_csv": [
+      "data/derived/vital_suicide_by_age_sex_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_suicide_age_sex.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411659"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      }
+    ],
+    "attribution": "「上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）」（厚生労働省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）を加工して作成"
+  },
+  "vital-suicide-rate-50-59": {
+    "derived_csv": [
+      "data/derived/vital_suicide_by_age_sex_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_suicide_age_sex.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411659"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      }
+    ],
+    "attribution": "「上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）」（厚生労働省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）を加工して作成"
+  },
+  "vital-suicide-rate-60-plus": {
+    "derived_csv": [
+      "data/derived/vital_suicide_by_age_sex_rate.csv"
+    ],
+    "primary_inputs": [
+      {
+        "local_path": "data/estat/vital_suicide_age_sex.csv",
+        "source_organization": "厚生労働省",
+        "table_title": "上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003411659"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004029959"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004018845"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004010040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0004008040"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003459018"
+      },
+      {
+        "local_path": "data/estat/pop_total_single_age_annual.csv",
+        "source_organization": "総務省",
+        "table_title": "年齢（各歳），男女別人口及び人口性比－総人口，日本人人口",
+        "source_url": "https://www.e-stat.go.jp/stat-search/database?lid=0003448228"
+      }
+    ],
+    "attribution": "「上巻 死因（死因年次推移分類）別にみた性・年齢（５歳階級）・年次別死亡数及び死亡率（人口10万対）」（厚生労働省）、「年齢（各歳），男女別人口及び人口性比－総人口，日本人人口」（総務省）を加工して作成"
+  }
+}

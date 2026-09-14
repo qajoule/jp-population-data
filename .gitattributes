@@ -1,0 +1,25 @@
+# verify_results.py が CSV の LF 改行を検査するため、チェックアウトでも LF を保つ
+*.csv text eol=lf
+*.py  text eol=lf
+*.md  text eol=lf
+
+# site/ の改行も LF に固定する。
+# 衛生ではなく検査の前提である。サイトが表示する数値を突き合わせる検査は
+# 文字列比較で判定するため、CRLF が混ざると Windows とだけ結果が食い違う。
+*.ts    text eol=lf
+*.astro text eol=lf
+*.mjs   text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.svg   text eol=lf
+
+# 拡張子を持たない、または上で拾えていないテキスト。
+# LICENSE は U+00A9 を含むためバイト単位で保つ必要がある。
+# .tmp-src/ の証拠ファイルと、棄却の記録として残すビルドログも同様。
+LICENSE text eol=lf
+*.tsv   text eol=lf
+*.txt   text eol=lf
+*.log   text eol=lf
+.nvmrc  text eol=lf
+.gitignore    text eol=lf
+.gitattributes text eol=lf

@@ -1,0 +1,52 @@
+name: Build and verify public static site
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    name: Build and verify public static site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: site/.nvmrc
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.13.9
+      - name: Install locked site dependencies
+        working-directory: site
+        run: npm ci
+      - name: Build static site
+        working-directory: site
+        run: npm run build
+      - name: Verify series styles
+        working-directory: site
+        run: npm run verify:series-styles
+      - name: Verify figure table values
+        working-directory: site
+        run: npm run verify:figure-table-values
+      - name: Verify content security policy
+        working-directory: site
+        run: npm run verify:csp
+      - name: Verify responsive layout does not overflow
+        working-directory: site
+        run: npm run verify:layout
+      - name: Verify rule contrast
+        working-directory: site
+        run: npm run verify:rule-contrast
+      - name: Verify rendered figures
+        run: python scripts/verify_figures.py
+      - name: Verify figure sources
+        run: python scripts/verify_figure_sources.py
+      - name: Verify derived data invariants
+        run: python scripts/verify_derived_invariants.py
+      - name: Verify derived data rederivation
+        run: python scripts/verify_rederivation.py
+      - name: Verify PDF extraction repeatability
+        run: python scripts/verify_pdf_extraction.py

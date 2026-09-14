@@ -1,0 +1,26 @@
+*.pdf
+__pycache__/
+out/png/
+data/estat/_raw/
+data/estat/*.csv
+!data/estat/_meta.csv
+
+# サイトが表示する数値の一次入力。鍵なしで再計算できるよう追跡する。
+# 解除は列挙で行う。ディレクトリ単位で解除しない。
+!data/estat/pop_total_single_age_annual.csv
+!data/estat/pop_age3_longterm.csv
+!data/estat/pop_total_5y_2025.csv
+!data/estat/vital_suicide_age_sex.csv
+!data/estat/vital_births_rates.csv
+!data/estat/vital_deaths_rates.csv
+
+data/mhlw/
+
+# 開発環境の生成物。追跡しない
+.venv/
+.ruff_cache/
+
+# site/ (Astro)。dist と .astro はビルド生成物
+node_modules/
+site/dist/
+site/.astro/

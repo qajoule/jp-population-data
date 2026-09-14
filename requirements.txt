@@ -1,0 +1,9 @@
+# Python 3.13.9 was measured in the project's extraction interpreter; it is not a package pin.
+# openpyxl: scripts/extract_employment.py reads the untracked employment workbooks.
+openpyxl==3.1.5
+# pdfplumber and PyMuPDF: scripts extracting values and images from source PDFs.
+pdfplumber==0.11.10
+pymupdf==1.28.2
+# requests: scripts that fetch source material outside the site build and re-derivation check.
+requests==2.34.2
+# The static site build and scripts/verify_rederivation.py use only the Python standard library.

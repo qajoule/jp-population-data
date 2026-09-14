@@ -1,0 +1,29 @@
+{
+  "name": "j-shrinking-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.11.0 <25"
+  },
+  "packageManager": "npm@11.6.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "npm run verify:series-styles && astro check",
+    "verify:series-styles": "node scripts/verify-series-styles.mjs",
+    "verify:layout": "node scripts/verify-no-horizontal-overflow.mjs",
+    "verify:rule-contrast": "node scripts/verify-rule-contrast.mjs",
+    "verify:figure-table-values": "node scripts/verify-figure-table-values.mjs",
+    "verify:csp": "node scripts/verify-csp.mjs"
+  },
+  "dependencies": {
+    "astro": "^7.3.2",
+    "@observablehq/plot": "^0.6.17",
+    "linkedom": "^0.18.11"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.9.3"
+  }
+}

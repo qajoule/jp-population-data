@@ -1,0 +1,100 @@
+---
+import { seriesStyles, type FigureMeta } from "../lib/figures";
+
+type RenderedFigure = {
+  id: string;
+  title: string;
+  yLabel: string;
+  svg: string;
+  points: Array<{
+    year: string;
+    value: string;
+    series: string;
+    metric: string;
+    attributes: Record<string, string>;
+  }>;
+  legends: Array<{
+    series: string;
+    color: string;
+    metric: string;
+    attributes: Record<string, string>;
+  }>;
+  annotations: Array<{ kind: string; year: string; text: string }>;
+};
+type Props = {
+  figure: RenderedFigure;
+  meta: FigureMeta;
+  showHeading?: boolean;
+};
+
+const { figure, meta, showHeading = true }: Props = Astro.props;
+const series = [...new Set(figure.points.map((point) => point.series))];
+const years = [...new Set(figure.points.map((point) => point.year))].sort((left, right) => Number(left) - Number(right));
+const pointFor = (year: string, seriesName: string) => figure.points.find((point) => point.year === year && point.series === seriesName);
+const formatValue = (value: string) => {
+  const [integer, fraction] = value.split(".");
+  const grouped = Number(integer).toLocaleString("ja-JP");
+  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
+};
+const cellAttributes = (point: RenderedFigure["points"][number]) => ({
+  "data-csv-metric": point.metric,
+  "data-csv-series-label": point.series,
+  "data-csv-value": point.value,
+  ...point.attributes,
+});
+---
+
+<figure>
+  {showHeading ? <h2>{meta.title}</h2> : <figcaption>{meta.title}</figcaption>}
+  <div
+    class="plot"
+    tabindex="0"
+    role="group"
+    aria-label={meta.title}
+    aria-description="矢印キーで年を移動し、Home と End で最初と最後の年へ移動できます。Escape で値の表示を閉じます。"
+    data-readout-unit={figure.yLabel}
+    set:html={figure.svg}
+  ></div>
+  <p class="chart-axis-x">横軸: 年</p>
+  {figure.legends.length > 1 && (
+    <ul class="chart-legend" aria-label={`${meta.title}の凡例`}>
+          {figure.legends.map((entry: RenderedFigure["legends"][number]) => (
+        <li
+          data-figure-ref={figure.id}
+          data-series-label={entry.series}
+          data-csv-metric={entry.metric}
+          {...(entry.attributes["data-csv-age-band"] ? { "data-csv-age-band": entry.attributes["data-csv-age-band"] } : {})}
+          {...(entry.attributes["data-csv-sex"] ? { "data-csv-sex": entry.attributes["data-csv-sex"] } : {})}
+        >
+          <span class="legend-key" data-series-color={entry.color} data-line-style={seriesStyles[entry.series as keyof typeof seriesStyles].lineStyle} aria-hidden="true"></span>
+          {entry.series}
+        </li>
+      ))}
+    </ul>
+  )}
+  <details class="chart-values">
+    <summary>数値表</summary>
+    <div class="chart-values__scroll">
+      <table data-figure-table={figure.id}>
+        <caption>{meta.title}の数値表</caption>
+        <thead>
+          <tr>
+            <th scope="col">年</th>
+            {series.map((seriesName) => <th scope="col">{series.length === 1 ? figure.yLabel : seriesName}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {years.map((year) => (
+            <tr>
+              <th scope="row">{year}</th>
+              {series.map((seriesName) => {
+                const point = pointFor(year, seriesName);
+                return point ? <td {...cellAttributes(point)}>{formatValue(point.value)}</td> : <td>--</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </details>
+</figure>
