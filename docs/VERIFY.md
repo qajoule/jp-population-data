@@ -4,7 +4,7 @@
 
 ## Tier 1: このリポジトリで機械的に見られること
 
-ネットワーク接続や e-Stat のアプリケーション ID を使わずに、コミット済みのファイルを比較します。Python の検査はリポジトリ直下で、サイトの検査は `site/` で実行します。
+`curl -I https://jp-population-data.pages.dev/` を除き、ネットワーク接続や e-Stat のアプリケーション ID を使わずに、コミット済みのファイルを比較します。Python の検査はリポジトリ直下で、サイトの検査は `site/` で実行します。
 
 | コマンド | 比較するもの | 違った時に出るもの |
 |---|---|---|
@@ -15,6 +15,7 @@
 | `python scripts/verify_pdf_extraction.py` | 同じ PDF から 2 回抽出する CSV とコミット済み CSV。PDF の SHA-256 も manifest と比べる | ハッシュ、行、列、異なる値。PDF がなければ `SKIPPED` |
 | `npm run verify:figure-table-values` | `site/dist/index.html` の SVG の点と直下の数値表を、図 ID・年・系列・指標ごとに対応させた値 | 図、年、系列、指標、表と点の値または点の欠落・重複 |
 | `npm run verify:csp` | `site/dist/index.html` の meta CSP、`site/dist/_headers`、`site/public/_headers` と `site/src/csp-policy.mjs` の文字列 | 欠けた層、異なる directive、許可されないリソース |
+| `curl -I https://jp-population-data.pages.dev/` | 応答の `Content-Security-Policy` ヘッダーと、`default-src 'none'; base-uri 'none'; connect-src 'none'; font-src 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'self'; manifest-src 'none'; media-src 'none'; object-src 'none'; worker-src 'none'; script-src 'self'; style-src 'self'` | ヘッダー層が適用されていること。数値は見ないため、数値については示さない |
 | `npm run verify:layout` | ヘッドレスブラウザで開く `site/dist/` の文書幅とスクロール幅 | 画面幅、文書幅、スクロール幅、該当要素 |
 | `npm run verify:rule-contrast` | 明暗テーマの罫線・グリッド線の色と背景色から計算したコントラスト比 | テーマ、要素、コントラスト比 |
 | `npm run verify:series-styles` | 図に描く系列名と `site/src/lib/figures.ts` の `seriesStyles` | 定義のない系列名 |
