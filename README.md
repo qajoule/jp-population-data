@@ -149,8 +149,6 @@ pip install -r requirements.txt
 
 ## License
 
-GitHub が表示するのはリポジトリ直下の `LICENSE`（MIT）です。以下はそこに書ききれない範囲です。
-
 | 対象 | ライセンス |
 |---|---|
 | コード | [MIT License](LICENSE) |
