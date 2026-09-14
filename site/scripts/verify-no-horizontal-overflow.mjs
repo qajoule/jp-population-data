@@ -55,13 +55,30 @@ async function json(url) {
   return response.json();
 }
 
-async function waitForDebugging(port, browser) {
+async function browserStartupFailure(launch, reason) {
+  const status = await Promise.race([
+    launch.closed,
+    new Promise((resolve) => setTimeout(() => resolve({ code: launch.browser.exitCode, signal: launch.browser.signalCode }), 0)),
+  ]);
+  const exitStatus = launch.spawnError
+    ? "exit_code=unavailable signal=unavailable"
+    : status.code !== null
+    ? `exit_code=${status.code}`
+    : status.signal !== null
+      ? `signal=${status.signal}`
+      : "exit_code=running signal=none";
+  const stderr = launch.stderr || "(no stderr captured)";
+  return `${reason}; binary=${launch.command}; ${exitStatus}; Chromium stderr:\n${stderr}`;
+}
+
+async function waitForDebugging(port, launch) {
   const endpoint = `http://127.0.0.1:${port}/json/version`;
   for (let attempt = 0; attempt < 100; attempt += 1) {
-    if (browser.exitCode !== null) throw new Error(`Chromium exited before starting (code ${browser.exitCode})`);
+    if (launch.spawnError) throw new Error(await browserStartupFailure(launch, `Chromium could not start: ${launch.spawnError.message}`));
+    if (launch.browser.exitCode !== null || launch.browser.signalCode !== null) throw new Error(await browserStartupFailure(launch, "Chromium exited before exposing its debugging endpoint"));
     try { return await json(endpoint); } catch { await new Promise((resolve) => setTimeout(resolve, 50)); }
   }
-  throw new Error("Chromium did not expose its debugging endpoint");
+  throw new Error(await browserStartupFailure(launch, "Chromium did not expose its debugging endpoint"));
 }
 
 async function cdp(webSocketDebuggerUrl) {
@@ -169,16 +186,60 @@ function browserCommand() {
   throw new Error("No Chromium browser found. Set SITE_BROWSER to a Chromium executable.");
 }
 
+function browserArguments(debugPort, userDataDir) {
+  return [
+    "--headless=new",
+    "--no-sandbox",
+    "--disable-dev-shm-usage",
+    `--remote-debugging-port=${debugPort}`,
+    `--user-data-dir=${userDataDir}`,
+    "about:blank",
+  ];
+}
+
+function launchBrowser(command, args) {
+  let browser;
+  try {
+    browser = spawn(command, args, { stdio: ["ignore", "ignore", "pipe"] });
+  } catch (error) {
+    return {
+      browser: { exitCode: null, signalCode: null },
+      command,
+      stderr: "",
+      spawnError: error,
+      closed: Promise.resolve({ code: null, signal: null }),
+    };
+  }
+  let stderr = "";
+  let spawnError = null;
+  browser.stderr?.setEncoding("utf8");
+  browser.stderr?.on("data", (chunk) => { stderr += chunk; });
+  browser.once("error", (error) => { spawnError = error; });
+  const closed = new Promise((resolve) => {
+    browser.once("close", (code, signal) => resolve({ code, signal }));
+  });
+  return {
+    browser,
+    command,
+    get stderr() { return stderr.trim(); },
+    get spawnError() { return spawnError; },
+    closed,
+  };
+}
+
 async function run() {
   if (!existsSync(path.join(distRoot, "index.html"))) throw new Error(`Built site is missing: ${distRoot}`);
   const server = await startServer();
   const address = server.address();
   const userDataDir = await mkdtemp(path.join(tmpdir(), "j-shrinking-layout-"));
   const debugPort = 9229 + Math.floor(Math.random() * 1000);
-  let browser;
+  let launch;
   try {
-    browser = spawn(browserCommand(), ["--headless=new", `--remote-debugging-port=${debugPort}`, `--user-data-dir=${userDataDir}`, "about:blank"], { stdio: "ignore" });
-    await waitForDebugging(debugPort, browser);
+    const command = browserCommand();
+    const args = browserArguments(debugPort, userDataDir);
+    console.log(`responsive_layout: Chromium binary=${command} flags=${args.filter((argument) => argument.startsWith("--")).join(" ")}`);
+    launch = launchBrowser(command, args);
+    await waitForDebugging(debugPort, launch);
     const pages = await json(`http://127.0.0.1:${debugPort}/json/list`);
     const pageEntry = pages.find((entry) => entry.type === "page");
     if (!pageEntry?.webSocketDebuggerUrl) throw new Error("Chromium exposed no debuggable page");
@@ -200,7 +261,7 @@ async function run() {
       console.log(`responsive_layout: PASS widths=${widths.join(",")} measured=${measuredWidths}`);
     } finally { page.close(); }
   } finally {
-    browser?.kill();
+    launch?.browser.kill?.();
     await new Promise((resolve) => server.close(resolve));
     try {
       await rm(userDataDir, { recursive: true, force: true });
