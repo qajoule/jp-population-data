@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 
 // Test both sides of the two responsive layout transitions in the specification.
 const widths = [375, 400, 401, 560, 561, 683, 684, 1024];
+const debuggingEndpointTimeoutMs = 30_000;
+const debuggingEndpointRetryMs = 50;
 const siteRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const distRoot = path.join(siteRoot, "dist");
 const browserCandidates = process.platform === "win32"
@@ -73,12 +75,20 @@ async function browserStartupFailure(launch, reason) {
 
 async function waitForDebugging(port, launch) {
   const endpoint = `http://127.0.0.1:${port}/json/version`;
-  for (let attempt = 0; attempt < 100; attempt += 1) {
+  const startedAt = performance.now();
+  while (performance.now() - startedAt < debuggingEndpointTimeoutMs) {
     if (launch.spawnError) throw new Error(await browserStartupFailure(launch, `Chromium could not start: ${launch.spawnError.message}`));
     if (launch.browser.exitCode !== null || launch.browser.signalCode !== null) throw new Error(await browserStartupFailure(launch, "Chromium exited before exposing its debugging endpoint"));
-    try { return await json(endpoint); } catch { await new Promise((resolve) => setTimeout(resolve, 50)); }
+    try {
+      const version = await json(endpoint);
+      return { version, waitedMs: Math.round(performance.now() - startedAt) };
+    } catch {
+      const remainingMs = debuggingEndpointTimeoutMs - (performance.now() - startedAt);
+      if (remainingMs > 0) await new Promise((resolve) => setTimeout(resolve, Math.min(debuggingEndpointRetryMs, remainingMs)));
+    }
   }
-  throw new Error(await browserStartupFailure(launch, "Chromium did not expose its debugging endpoint"));
+  const waitedMs = Math.round(performance.now() - startedAt);
+  throw new Error(await browserStartupFailure(launch, `Chromium did not expose its debugging endpoint after waiting ${waitedMs}ms (timeout=${debuggingEndpointTimeoutMs}ms)`));
 }
 
 async function cdp(webSocketDebuggerUrl) {
@@ -237,9 +247,9 @@ async function run() {
   try {
     const command = browserCommand();
     const args = browserArguments(debugPort, userDataDir);
-    console.log(`responsive_layout: Chromium binary=${command} flags=${args.filter((argument) => argument.startsWith("--")).join(" ")}`);
     launch = launchBrowser(command, args);
-    await waitForDebugging(debugPort, launch);
+    const debugging = await waitForDebugging(debugPort, launch);
+    console.log(`responsive_layout: Chromium binary=${command} flags=${args.filter((argument) => argument.startsWith("--")).join(" ")} debugging_endpoint_wait_ms=${debugging.waitedMs} timeout_ms=${debuggingEndpointTimeoutMs}`);
     const pages = await json(`http://127.0.0.1:${debugPort}/json/list`);
     const pageEntry = pages.find((entry) => entry.type === "page");
     if (!pageEntry?.webSocketDebuggerUrl) throw new Error("Chromium exposed no debuggable page");
