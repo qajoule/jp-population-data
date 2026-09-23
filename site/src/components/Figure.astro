@@ -51,10 +51,13 @@ const cellAttributes = (point: RenderedFigure["points"][number]) => ({
     tabindex="0"
     role="group"
     aria-label={meta.title}
-    aria-description="矢印キーで年を移動し、Home と End で最初と最後の年へ移動できます。Escape で値の表示を閉じます。"
+    aria-describedby={`${figure.id}-instructions`}
     data-readout-unit={figure.yLabel}
     set:html={figure.svg}
   ></div>
+  <p class="plot-instructions" id={`${figure.id}-instructions`}>
+    マウスを重ねるかタップすると年ごとの値を表示します。キーボードでは矢印キーで年を移動し、Home と End で最初と最後の年へ移動できます。Escape で値の表示を閉じます。
+  </p>
   <p class="chart-axis-x">横軸: 年</p>
   {figure.legends.length > 1 && (
     <ul class="chart-legend" aria-label={`${meta.title}の凡例`}>

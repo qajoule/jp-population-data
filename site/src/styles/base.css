@@ -118,6 +118,10 @@ a:hover { text-decoration-thickness: 2px; }
 .legend-key[data-series-color] { color: var(--series-color); }
 [data-line-style="dash"] { stroke-dasharray: 8 4; } [data-line-style="dot"] { stroke-dasharray: 2 4; } [data-line-style="long-dash"] { stroke-dasharray: 12 4; } [data-line-style="dash-dot"] { stroke-dasharray: 8 3 2 3; } [data-line-style="short-dash"] { stroke-dasharray: 5 3; } [data-line-style="double-dot"] { stroke-dasharray: 2 2 2 4; }
 .plot svg [aria-label="dot"] circle { r: 4px; stroke: var(--surface); stroke-width: 2px; }
+.plot svg .figure-focus-guide { pointer-events: none; }
+.plot svg .figure-focus-guide line { stroke: var(--ink-secondary); stroke-dasharray: 4 4; stroke-width: 1.5px; }
+.plot svg [aria-label="dot"] circle.is-active { r: 6px; stroke: var(--ink); stroke-width: 2.5px; }
+.plot-instructions { color: var(--ink-secondary); font-size: .85rem; margin: .6rem 0 0; }
 .chart-axis-x { color: var(--muted); font-size: .76rem; margin: .25rem 0 0; text-align: center; }
 .chart-legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; list-style: none; margin: .85rem 0 0; padding: 0; color: var(--ink-secondary); font-size: .85rem; }
 .chart-legend li { display: flex; align-items: center; gap: .4rem; }
