@@ -29,10 +29,11 @@
 .chart-values th, .chart-values td { border: 1px solid var(--rule); padding: .4rem .65rem; text-align: right; white-space: nowrap; }
 .chart-values thead th { background: var(--surface); }
 .chart-values th:first-child { text-align: left; }
-.figure-readout { background: var(--surface); border: 1px solid var(--rule-structural); box-shadow: 0 4px 14px rgb(0 0 0 / .18); color: var(--ink); max-width: min(22rem, calc(100vw - 2rem)); padding: .65rem .8rem; pointer-events: none; position: fixed; z-index: 10; }
+.figure-readout { background: var(--surface); border: 1px solid var(--rule-structural); box-shadow: 0 4px 14px rgb(0 0 0 / .18); color: var(--ink); max-height: calc(100dvh - 1rem); max-width: calc(100vw - 2rem); min-width: min(13rem, calc(100vw - 2rem)); overflow-y: auto; padding: .65rem .8rem; pointer-events: none; position: fixed; z-index: 10; }
 .figure-readout__year { font-weight: 650; margin: 0 0 .35rem; }
 .figure-readout ul { list-style: none; margin: 0; padding: 0; }
-.figure-readout li { display: flex; gap: 1rem; justify-content: space-between; }
+.figure-readout li { align-items: baseline; display: flex; gap: 1rem; justify-content: space-between; }
+.figure-readout li span { white-space: nowrap; }
 .figure-stack { display: grid; gap: 1.5rem; min-width: 0; }
 .figure-stack figure { min-width: 0; }
 .figure-stack figcaption { color: var(--ink-secondary); font-size: .9rem; margin-top: .4rem; }

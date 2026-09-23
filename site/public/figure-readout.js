@@ -38,18 +38,56 @@
       list.append(item);
     });
     readout.append(heading, list);
-    const x = Math.min(position.x + 14, window.innerWidth - readout.offsetWidth - 8);
-    const y = Math.min(position.y + 14, window.innerHeight - readout.offsetHeight - 8);
-    readout.style.left = `${Math.max(8, x)}px`;
-    readout.style.top = `${Math.max(8, y)}px`;
     readout.hidden = false;
+    const margin = 8;
+    const viewportWidth = window.visualViewport?.width ?? document.documentElement.clientWidth;
+    const viewportHeight = window.visualViewport?.height ?? document.documentElement.clientHeight;
+    const maxX = Math.max(margin, viewportWidth - readout.offsetWidth - margin);
+    const maxY = Math.max(margin, viewportHeight - readout.offsetHeight - margin);
+    const x = Math.min(Math.max(margin, position.x + 14), maxX);
+    const y = Math.min(Math.max(margin, position.y + 14), maxY);
+    readout.style.left = `${x}px`;
+    readout.style.top = `${y}px`;
   };
   const hide = () => { readout.hidden = true; };
+  const setActiveYear = (svg, plot, year) => {
+    svg.querySelectorAll(`${circleSelector}.is-active`).forEach((circle) => circle.classList.remove('is-active'));
+    pointsForYear(plot, year).forEach((circle) => circle.classList.add('is-active'));
+    const guide = svg.querySelector('.figure-focus-guide');
+    const point = pointsForYear(plot, year)[0];
+    if (!guide || !point) return;
+    const x = point.getAttribute('cx');
+    if (!x) return;
+    guide.querySelector('line')?.setAttribute('x1', x);
+    guide.querySelector('line')?.setAttribute('x2', x);
+    guide.removeAttribute('display');
+  };
+  const clearActiveYear = (svg) => {
+    svg.querySelectorAll(`${circleSelector}.is-active`).forEach((circle) => circle.classList.remove('is-active'));
+    svg.querySelector('.figure-focus-guide')?.setAttribute('display', 'none');
+  };
+  let activeTouchSelection = null;
+  const dismissTouchReadout = () => {
+    if (!activeTouchSelection) return false;
+    activeTouchSelection();
+    activeTouchSelection = null;
+    hide();
+    return true;
+  };
   const nearestCircle = (svg, clientX) => [...svg.querySelectorAll(circleSelector)]
     .reduce((nearest, circle) => {
       const distance = Math.abs(circle.getBoundingClientRect().x - clientX);
       return !nearest || distance < nearest.distance ? { circle, distance } : nearest;
     }, null)?.circle;
+
+  document.addEventListener('pointerdown', dismissTouchReadout, true);
+  document.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'touch' && dismissTouchReadout()) event.stopPropagation();
+  }, true);
+  document.addEventListener('wheel', dismissTouchReadout, true);
+  document.addEventListener('keydown', (event) => {
+    if (dismissTouchReadout()) event.stopPropagation();
+  }, true);
 
   document.querySelectorAll('.plot[data-readout-unit]').forEach((plot) => {
     const svg = plot.querySelector('svg[data-figure-id]');
@@ -58,33 +96,53 @@
       .map((circle) => readAttribute(circle, 'year')))]
       .filter(Boolean)
       .sort((left, right) => Number(left) - Number(right));
+    const guide = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    guide.classList.add('figure-focus-guide');
+    guide.setAttribute('aria-hidden', 'true');
+    guide.setAttribute('display', 'none');
+    const guideLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    guideLine.setAttribute('y1', svg.dataset.yScalePixelTop ?? '0');
+    guideLine.setAttribute('y2', svg.dataset.yScalePixelBottom ?? svg.getAttribute('height') ?? '0');
+    guide.append(guideLine);
+    svg.append(guide);
     let currentYear = years[0];
     const showYear = (year, position) => {
       const circle = pointsForYear(plot, year)[0];
       if (!circle) return;
       currentYear = year;
+      setActiveYear(svg, plot, year);
       show(circle, position);
     };
-    let longTouch;
     svg.addEventListener('pointermove', (event) => {
       if (event.pointerType === 'touch') return;
       const circle = nearestCircle(svg, event.clientX);
-      if (circle) showYear(readAttribute(circle, 'year'), event);
+      if (circle) {
+        showYear(readAttribute(circle, 'year'), event);
+      }
     });
-    svg.addEventListener('pointerleave', hide);
-    svg.addEventListener('pointerdown', (event) => {
+    const clearPointerSelection = (event) => {
+      if (event.pointerType === 'touch') return;
+      if (event.relatedTarget instanceof Node && plot.contains(event.relatedTarget)) return;
+      clearActiveYear(svg);
+      hide();
+    };
+    plot.addEventListener('pointerleave', clearPointerSelection);
+    plot.addEventListener('pointerout', clearPointerSelection);
+    svg.addEventListener('pointerup', (event) => {
       if (event.pointerType !== 'touch') return;
       const circle = nearestCircle(svg, event.clientX);
       if (!circle) return;
-      longTouch = window.setTimeout(() => showYear(readAttribute(circle, 'year'), event), 500);
+      showYear(readAttribute(circle, 'year'), event);
+      activeTouchSelection = () => clearActiveYear(svg);
     });
-    svg.addEventListener('pointerup', () => window.clearTimeout(longTouch));
-    svg.addEventListener('pointercancel', () => window.clearTimeout(longTouch));
     plot.addEventListener('focus', () => {
       const rect = plot.getBoundingClientRect();
       showYear(currentYear, { x: rect.right, y: rect.bottom });
     });
-    plot.addEventListener('blur', hide);
+    plot.addEventListener('blur', () => {
+      clearActiveYear(svg);
+      hide();
+    });
     plot.addEventListener('keydown', (event) => {
       const index = years.indexOf(currentYear);
       let nextYear;
@@ -93,6 +151,7 @@
       if (event.key === 'Home') nextYear = years[0];
       if (event.key === 'End') nextYear = years[years.length - 1];
       if (event.key === 'Escape') {
+        clearActiveYear(svg);
         hide();
         return;
       }
