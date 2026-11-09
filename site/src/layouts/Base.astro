@@ -3,8 +3,8 @@ import "../styles/base.css";
 import { contentSecurityPolicy } from "../csp-policy.mjs";
 import Seo from "../components/Seo.astro";
 
-type Props = { title: string };
-const { title } = Astro.props;
+type Props = { title: string; notFound?: boolean };
+const { title, notFound = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -13,7 +13,7 @@ const { title } = Astro.props;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta http-equiv="Content-Security-Policy" content={contentSecurityPolicy} />
-    <Seo title={title} />
+    <Seo title={title} notFound={notFound} />
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" type="image/x-icon" />
     <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
@@ -38,10 +38,12 @@ const { title } = Astro.props;
       </div>
     </header>
     <main>
-      <div class="intro">
-        <p>当サイトは "自殺" や "年齢別の人口" のデータを取り扱っていますが、特定の主張やその支持をするものではありません。政府や各省庁が公式に公開している情報をまとめ、グラフとして視覚化したものです。なお、<strong>自殺死亡率は、公表されている自殺者数と人口をもとに当サイトが計算した値です。</strong></p>
-        <p>また、当サイトは<a href="https://github.com/qajoule/jp-population-data" rel="noopener">オープンソース</a>です。細心の注意を払っておりますが、データの誤り等がございましたら<a href="https://forms.gle/QWaeZSii8NdYHoSs5" rel="noopener">こちらのフォーム</a>からご連絡頂けますと幸いです。</p>
-      </div>
+      {!notFound && (
+        <div class="intro">
+          <p>当サイトは "自殺" や "年齢別の人口" のデータを取り扱っていますが、特定の主張やその支持をするものではありません。政府や各省庁が公式に公開している情報をまとめ、グラフとして視覚化したものです。なお、<strong>自殺死亡率は、公表されている自殺者数と人口をもとに当サイトが計算した値です。</strong></p>
+          <p>また、当サイトは<a href="https://github.com/qajoule/jp-population-data" rel="noopener">オープンソース</a>です。細心の注意を払っておりますが、データの誤り等がございましたら<a href="https://forms.gle/QWaeZSii8NdYHoSs5" rel="noopener">こちらのフォーム</a>からご連絡頂けますと幸いです。</p>
+        </div>
+      )}
       <slot />
       <footer class="site-footer">
         <section class="helpline" aria-labelledby="helpline-title">
