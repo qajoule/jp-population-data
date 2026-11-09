@@ -8,7 +8,8 @@ on:
 jobs:
   checks:
     name: Build and verify public static site
-    runs-on: ubuntu-latest
+    # ubuntu-latest moved to 26.04, where setup-python cannot provide Python 3.13.9.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
