@@ -1,20 +1,60 @@
 ---
-// The shared SEO head for Astro (the counterpart of seoworkspace/common/layouts/seo/head.html).
-// Emits robots (noindex only on request), title, description, canonical, Open Graph and Twitter tags.
-import { seo } from "../seo.config.mjs";
+// The shared SEO head for Astro (the counterpart of seoworkspace/common/layouts/seo/head.html and json-ld.html).
+// Emits robots, title, description, canonical, Open Graph, Twitter and JSON-LD.
+// A 404 page (notFound) gets noindex and no canonical and no JSON-LD.
+import { seo, author } from "../seo.config.mjs";
 
-type Props = { title: string; description?: string; noindex?: boolean };
-const { title, description = seo.description, noindex = false } = Astro.props;
+type Props = { title: string; description?: string; noindex?: boolean; notFound?: boolean };
+const { title, description = seo.description, noindex = false, notFound = false } = Astro.props;
+const home = new URL("/", Astro.site).href;
 const pageUrl = new URL(Astro.url.pathname, Astro.site);
 const imageUrl = new URL(seo.image, Astro.site);
 const isHome = Astro.url.pathname === "/";
 const pageTitle = isHome ? title : `${title} | ${seo.siteName}`;
+
+// JSON-LD is built as data and serialised, never written as a string by hand.
+// "<" is escaped so that no text inside the data can close the script element.
+const siteId = `${home}#website`;
+const personId = `${home}#author`;
+const graph = [];
+if (isHome) {
+  graph.push({
+    "@type": "WebSite",
+    "@id": siteId,
+    url: home,
+    name: seo.siteName,
+    inLanguage: seo.language,
+    description: seo.description,
+    author: { "@id": personId },
+  });
+  graph.push({
+    "@type": "Person",
+    "@id": personId,
+    name: author.name,
+    url: home,
+    alternateName: author.alternateName,
+    jobTitle: author.jobTitle,
+    sameAs: author.sameAs,
+  });
+}
+graph.push({
+  "@type": "WebPage",
+  "@id": `${pageUrl.href}#webpage`,
+  url: pageUrl.href,
+  name: title,
+  inLanguage: seo.language,
+  description,
+  isPartOf: { "@id": siteId },
+  author: { "@id": personId },
+});
+const lessThan = String.raw`<`;
+const jsonLd = JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replaceAll("<", lessThan);
 ---
 
-{noindex && <meta name="robots" content="noindex, follow" />}
+{(noindex || notFound) && <meta name="robots" content="noindex, follow" />}
 <title>{pageTitle}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={pageUrl.href} />
+{!notFound && <link rel="canonical" href={pageUrl.href} />}
 <meta property="og:site_name" content={seo.siteName} />
 <meta property="og:locale" content={seo.locale} />
 <meta property="og:type" content={isHome ? "website" : "article"} />
@@ -30,3 +70,4 @@ const pageTitle = isHome ? title : `${title} | ${seo.siteName}`;
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={imageUrl.href} />
 <meta name="twitter:image:alt" content={seo.imageAlt} />
+{!notFound && <script type="application/ld+json" set:html={jsonLd} />}

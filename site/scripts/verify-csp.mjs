@@ -36,6 +36,12 @@ function attribute(attributes, name) {
     ?? attributes.match(new RegExp(`\\b${name}='([^']*)'`, "i"))?.[1];
 }
 
+// JSON-LD is a data block: the browser never executes it, so a script-src policy does not apply to it.
+// It is ignored here on purpose, and only this one type is ignored (any other inline script is still counted).
+function isJsonLd(script) {
+  return attribute(script[1], "type")?.trim().toLowerCase() === "application/ld+json";
+}
+
 function sha256(value) {
   return `sha256-${createHash("sha256").update(value).digest("base64")}`;
 }
@@ -61,7 +67,9 @@ function validate(html, headers, sourceHeaders = headers) {
   const headerPolicy = extractHeaderPolicy(headers);
   const meta = metaPolicy && parsePolicy(metaPolicy);
   const header = headerPolicy && parsePolicy(headerPolicy);
-  const scripts = elements(html, "script");
+  const allScripts = elements(html, "script");
+  const scripts = allScripts.filter((script) => !isJsonLd(script));
+  const jsonLdIgnored = allScripts.length - scripts.length;
   const inlineScripts = scripts.filter((script) => !attribute(script[1], "src"));
   const styles = elements(html, "style");
   const stylesheets = [...html.matchAll(/<link\b([^>]*)>/gi)].filter((match) => attribute(match[1], "rel")?.toLowerCase() === "stylesheet");
@@ -109,6 +117,7 @@ function validate(html, headers, sourceHeaders = headers) {
       documents: 1,
       directives: directiveNames.size,
       scripts: scripts.length,
+      jsonLdIgnored,
       inlineScripts: inlineScripts.length,
       inlineStyles: styles.length,
       stylesheets: stylesheets.length,
@@ -125,7 +134,7 @@ function validate(html, headers, sourceHeaders = headers) {
 
 function report(result, label) {
   const { measurements } = result;
-  console.log(`${label}: documents=${measurements.documents} directives=${measurements.directives} scripts=${measurements.scripts} inline_scripts=${measurements.inlineScripts} inline_styles=${measurements.inlineStyles} stylesheets=${measurements.stylesheets}`);
+  console.log(`${label}: documents=${measurements.documents} directives=${measurements.directives} scripts=${measurements.scripts} inline_scripts=${measurements.inlineScripts} json_ld_ignored=${measurements.jsonLdIgnored} inline_styles=${measurements.inlineStyles} stylesheets=${measurements.stylesheets}`);
   console.log(`${label}: script_src_hashes=${measurements.scriptHashes} style_src_hashes=${measurements.styleHashes}`);
   console.log(`${label}: blocked_scripts=${measurements.blockedScripts} blocked_inline_styles=${measurements.blockedInlineStyles} blocked_stylesheets=${measurements.blockedStylesheets} disagreements=${measurements.disagreements}`);
   for (const { layer, directive, hash } of result.unmatchedHashes) console.log(`${label}: unmatched_hash layer=${layer} directive=${directive} hash=${hash}`);
@@ -150,16 +159,27 @@ function selfTest() {
     ["policy_agreement", { ...fixture(policy), headers: fixture(policy.replace("default-src 'none'; ", "")).headers }],
     ["resource_authorization", fixture(policy, '<script src="https://example.invalid/app.js"></script><style>body{color:red}</style>')],
     ["zero_denominator", fixture(policy, "")],
+    ["inline_script_still_counted", fixture(policy, '<script src="/app.js"></script><link rel="stylesheet" href="/app.css"><script>alert(1)</script>')],
+    ["inline_json_script_still_counted", fixture(policy, '<script src="/app.js"></script><link rel="stylesheet" href="/app.css"><script type="application/json">{}</script>')],
     ["hash_matches_inline_content", fixture(`${policy}; script-src 'self' 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='`)],
   ];
   let failed = false;
   for (const [name, input] of cases) {
     const result = validate(input.html, input.headers);
-    const observed = result.failures.includes(name) || (name === "zero_denominator" && result.failures.includes("resource_authorization"));
+    const alias = { zero_denominator: "resource_authorization", inline_script_still_counted: "resource_authorization", inline_json_script_still_counted: "resource_authorization" };
+    const observed = result.failures.includes(name) || (name in alias && result.failures.includes(alias[name]));
     console.log(`self_test_${name}: ${observed ? "EXPECTED_FAIL" : "FAIL"}`);
     failed ||= !observed;
   }
-  if (failed) throw new Error("CSP self-test did not fail every assertion intentionally");
+  // JSON-LD must be ignored, and the count must be visible.
+  const withJsonLd = validate(
+    fixture(policy, '<script src="/app.js"></script><link rel="stylesheet" href="/app.css"><script type="application/ld+json">{"@context":"https://schema.org"}</script>').html,
+    fixture(policy).headers,
+  );
+  const ignored = !withJsonLd.failures.includes("resource_authorization") && withJsonLd.measurements.jsonLdIgnored === 1 && withJsonLd.measurements.inlineScripts === 0;
+  console.log(`self_test_json_ld_ignored: ${ignored ? "EXPECTED_PASS" : "FAIL"}`);
+  failed ||= !ignored;
+  if (failed) throw new Error("CSP self-test did not behave as intended");
 }
 
 const isSelfTest = process.argv.includes("--self-test");
