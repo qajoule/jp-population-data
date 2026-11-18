@@ -170,6 +170,9 @@ function verifyReadout() {
   }
   pointAt(first, 'pointermove', 'mouse');
   expectYear(first);
+  const list = output.querySelector('ul');
+  pointAt(first, 'pointermove', 'mouse');
+  if (output.querySelector('ul') !== list) throw new Error('Repeated hover replaced the value list');
   document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   if (!output.hidden || svg.querySelector('circle.is-active') || svg.querySelector('.figure-focus-guide').getAttribute('display') !== 'none') throw new Error('Escape did not clear hover');
   plot.focus();
