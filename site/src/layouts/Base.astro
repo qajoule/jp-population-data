@@ -1,6 +1,7 @@
 ---
 import "../styles/base.css";
-import { contentSecurityPolicy } from "../csp-policy.mjs";
+import "../styles/ledger.css";
+import { metaContentSecurityPolicy } from "../csp-policy.mjs";
 import Seo from "../components/Seo.astro";
 
 type Props = { title: string; notFound?: boolean };
@@ -12,7 +13,7 @@ const { title, notFound = false } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta http-equiv="Content-Security-Policy" content={contentSecurityPolicy} />
+    <meta http-equiv="Content-Security-Policy" content={metaContentSecurityPolicy} />
     <Seo title={title} notFound={notFound} />
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" type="image/x-icon" />
     <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png" />

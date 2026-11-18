@@ -9,7 +9,6 @@ import figureSources from "../../../data/figure_sources.json";
 import Base from "../layouts/Base.astro";
 import Figure from "../components/Figure.astro";
 import FigureDetails from "../components/FigureDetails.astro";
-import "../styles/ledger.css";
 
 type Point = { year: string; value: string; series: string; color: string; metric: string; attributes: Record<string, string> };
 type Annotation = { kind: string; year: string; text: string };
@@ -117,6 +116,10 @@ function figureSvg(id: string, title: string, yLabel: string, points: Point[], x
   svg.querySelector("style")?.remove();
   addGridlineMarkers(svg);
   addSeriesStyleAttributes(svg, points);
+  svg.querySelectorAll('g[aria-label="line"], g[aria-label="dot"]').forEach((group) => {
+    group.setAttribute("data-mark", group.getAttribute("aria-label")!);
+    group.removeAttribute("aria-label");
+  });
   svg.setAttribute("role", "img"); svg.setAttribute("aria-label", title); svg.setAttribute("data-figure-id", id);
   svg.setAttribute("data-y-scale-domain-min", String(domain[0])); svg.setAttribute("data-y-scale-domain-max", String(domain[1]));
   svg.setAttribute("data-y-scale-pixel-top", String(TOP)); svg.setAttribute("data-y-scale-pixel-bottom", String(BOTTOM));

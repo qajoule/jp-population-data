@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import { contentSecurityPolicy } from "../src/csp-policy.mjs";
+import { contentSecurityPolicy, metaContentSecurityPolicy } from "../src/csp-policy.mjs";
 
 const root = new URL("../", import.meta.url);
 const distIndex = new URL("dist/index.html", root);
@@ -75,11 +75,13 @@ function validate(html, headers, sourceHeaders = headers) {
   const stylesheets = [...html.matchAll(/<link\b([^>]*)>/gi)].filter((match) => attribute(match[1], "rel")?.toLowerCase() === "stylesheet");
 
   if (!metaPolicy || !headerPolicy) failures.push("policy_presence");
-  if (metaPolicy !== contentSecurityPolicy || !policyMatchesSharedSource(headers) || !policyMatchesSharedSource(sourceHeaders)) failures.push("shared_policy");
+  if (metaPolicy !== metaContentSecurityPolicy || !policyMatchesSharedSource(headers) || !policyMatchesSharedSource(sourceHeaders)) failures.push("shared_policy");
   if (!meta?.get("default-src")?.has("'none'") || !header?.get("default-src")?.has("'none'")) failures.push("default_src_none");
-  if (!meta?.get("connect-src")?.has("'none'") || !header?.get("connect-src")?.has("'none'")) failures.push("connect_src_none");
+  const robotsOnly = (sources) => sources?.size === 1 && sources.has("https://jp-population-data.pages.dev/robots.txt");
+  if (!robotsOnly(meta?.get("connect-src")) || !robotsOnly(header?.get("connect-src"))) failures.push("connect_src_robots_only");
 
   const directiveNames = new Set([...(meta?.keys() ?? []), ...(header?.keys() ?? [])]);
+  directiveNames.delete("frame-ancestors");
   const disagreements = [...directiveNames].filter((name) => {
     const left = meta?.get(name) ?? new Set();
     const right = header?.get(name) ?? new Set();
@@ -151,11 +153,11 @@ function fixture(policy, body = '<script src="/app.js"></script><link rel="style
 }
 
 function selfTest() {
-  const policy = "default-src 'none'; connect-src 'none'; script-src 'self'; style-src 'self'";
+  const policy = "default-src 'none'; connect-src https://jp-population-data.pages.dev/robots.txt; script-src 'self'; style-src 'self'";
   const cases = [
     ["policy_presence", { html: "", headers: "" }],
     ["shared_policy", fixture(policy)],
-    ["connect_src_none", fixture(policy.replace("connect-src 'none'", "connect-src 'self'"))],
+    ["connect_src_robots_only", fixture(policy.replace("connect-src https://jp-population-data.pages.dev/robots.txt", "connect-src 'self'"))],
     ["policy_agreement", { ...fixture(policy), headers: fixture(policy.replace("default-src 'none'; ", "")).headers }],
     ["resource_authorization", fixture(policy, '<script src="https://example.invalid/app.js"></script><style>body{color:red}</style>')],
     ["zero_denominator", fixture(policy, "")],
