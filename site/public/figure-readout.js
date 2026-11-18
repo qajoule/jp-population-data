@@ -67,6 +67,7 @@
     svg.querySelector('.figure-focus-guide')?.setAttribute('display', 'none');
   };
   let activeTouchSelection = null;
+  let visibleSvg = null;
   const dismissTouchReadout = () => {
     if (!activeTouchSelection) return false;
     activeTouchSelection();
@@ -86,6 +87,12 @@
   }, true);
   document.addEventListener('wheel', dismissTouchReadout, true);
   document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && visibleSvg && !readout.hidden) {
+      clearActiveYear(visibleSvg);
+      activeTouchSelection = null;
+      hide();
+      return;
+    }
     if (dismissTouchReadout()) event.stopPropagation();
   }, true);
 
@@ -109,6 +116,8 @@
     const showYear = (year, position) => {
       const circle = pointsForYear(plot, year)[0];
       if (!circle) return;
+      if (visibleSvg && visibleSvg !== svg) clearActiveYear(visibleSvg);
+      visibleSvg = svg;
       currentYear = year;
       setActiveYear(svg, plot, year);
       show(circle, position);

@@ -154,6 +154,31 @@ const overflowExpression = `(() => {
   return { documentWidth, documentScrollWidth, pageOverflow: documentScrollWidth > documentWidth + 0.5, offender: offenders[0] ?? null, plotFailure, numberColumnOutliers, plotAlignmentReference, plotAlignmentOutliers, plotCenteringOutliers };
 })()`;
 
+function verifyReadout() {
+  const plot = document.querySelector('.plot');
+  const svg = plot.querySelector('svg');
+  const points = [...svg.querySelectorAll('circle[data-csv-year]')];
+  const first = points[0];
+  const next = points.find(point => point.dataset.csvYear !== first.dataset.csvYear);
+  const output = document.querySelector('.figure-readout');
+  function pointAt(point, type, pointerType) {
+    const rect = point.getBoundingClientRect();
+    svg.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerType, clientX: rect.x + rect.width / 2, clientY: rect.y }));
+  }
+  function expectYear(point) {
+    if (output.hidden || !output.querySelector('p').textContent.startsWith(point.dataset.csvYear + '年')) throw new Error('Incorrect readout year');
+  }
+  pointAt(first, 'pointermove', 'mouse');
+  expectYear(first);
+  document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  if (!output.hidden || svg.querySelector('circle.is-active') || svg.querySelector('.figure-focus-guide').getAttribute('display') !== 'none') throw new Error('Escape did not clear hover');
+  plot.focus();
+  plot.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+  expectYear(next);
+  pointAt(first, 'pointerup', 'touch');
+  expectYear(first);
+}
+
 function formatPlot(plot) {
   const name = plot.id ? `#${plot.id}` : `[${plot.index}]`;
   return `.plot${name} left=${plot.left.toFixed(1)} width=${plot.plotWidth.toFixed(1)} left_gap=${plot.leftGap.toFixed(1)} right_gap=${plot.rightGap.toFixed(1)}`;
@@ -264,6 +289,8 @@ async function run() {
         const { result } = await page.call("Runtime.evaluate", { expression: overflowExpression, returnByValue: true });
         const observation = result.value;
         assertObservation(width, observation);
+        const interaction = await page.call("Runtime.evaluate", { expression: `(${verifyReadout})()` });
+        if (interaction.exceptionDetails) throw new Error(interaction.exceptionDetails.exception.description);
         measuredWidths += 1;
         console.log(`width=${width} document_width=${observation.documentWidth} scroll_width=${observation.documentScrollWidth} offender=${observation.offender ? observation.offender.tag : "none"}`);
       }
