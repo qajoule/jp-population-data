@@ -7,11 +7,15 @@ on:
 
 jobs:
   checks:
+    permissions:
+      contents: read
     name: Build and verify public static site
     # ubuntu-latest moved to 26.04, where setup-python cannot provide Python 3.13.9.
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: site/.nvmrc
