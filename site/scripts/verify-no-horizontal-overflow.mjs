@@ -7,7 +7,7 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 // Test both sides of the two responsive layout transitions in the specification.
-const widths = [375, 400, 401, 560, 561, 683, 684, 1024];
+const widths = [320, 375, 400, 401, 560, 561, 683, 684, 1024];
 const debuggingEndpointTimeoutMs = 30_000;
 const debuggingEndpointRetryMs = 50;
 const siteRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -180,6 +180,10 @@ function verifyReadout() {
   expectYear(next);
   pointAt(first, 'pointerup', 'touch');
   expectYear(first);
+  const bounds = output.getBoundingClientRect();
+  if (bounds.left < 0 || bounds.right > document.documentElement.clientWidth || output.scrollWidth > output.clientWidth) {
+    throw new Error('Readout extends past the viewport or clips values');
+  }
 }
 
 function formatPlot(plot) {
