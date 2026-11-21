@@ -1,0 +1,5 @@
+name: Commit messages
+on: pull_request
+jobs:
+  commit-msg:
+    uses: qajoule/.github/.github/workflows/commit-msg.yml@main
